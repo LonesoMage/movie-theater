@@ -96,13 +96,27 @@
     "Mackie",
     "Hiddleston",
     "Jolie",
-    "Keanu"
+    "Keanu",
+    "навігує",
+    "omdbapi",
+    "фільмякогонеіснує",
+    "неіснуючийфільм",
+    "валідує",
+    "viewports",
+    "macbook",
+    "labelledby",
+    "скрін",
+    "рідерів",
+    "відрендерився",
+    "Goyer",
+    "Metacritic"
   ],
   "ignorePaths": [
     "node_modules/**",
     ".git/**",
     "dist/**",
     "build/**",
-    "src/test/**"
+    "src/test/**",
+    "cypress/**"
   ]
 }

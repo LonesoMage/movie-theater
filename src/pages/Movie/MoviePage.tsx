@@ -71,7 +71,9 @@ const HeroSection = styled.section`
   overflow: hidden;
 `;
 
-const HeroBackground = styled.div<{ poster?: string }>`
+const HeroBackground = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'poster',
+})<{ poster?: string }>`
   position: absolute;
   top: 0;
   left: 0;
@@ -227,7 +229,9 @@ const ActionButtons = styled.div`
   }
 `;
 
-const FavoriteButton = styled(Button)<{ isFavorite: boolean }>`
+const FavoriteButton = styled(Button).withConfig({
+  shouldForwardProp: (prop) => prop !== 'isFavorite',
+})<{ isFavorite: boolean }>`
   background: ${props => props.isFavorite 
     ? 'linear-gradient(45deg, #ef4444, #dc2626)' 
     : 'linear-gradient(45deg, #374151, #4b5563)'};

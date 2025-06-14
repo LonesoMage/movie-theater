@@ -96,7 +96,9 @@ const SearchContainer = styled.div`
   position: relative;
 `;
 
-const SearchInput = styled.input<{ isLoading?: boolean }>`
+const SearchInput = styled.input.withConfig({
+  shouldForwardProp: (prop) => prop !== 'isLoading',
+})<{ isLoading?: boolean }>`
   flex: 1;
   padding: 12px 16px;
   border: 2px solid #374151;
@@ -122,7 +124,9 @@ const SearchInput = styled.input<{ isLoading?: boolean }>`
   `}
 `;
 
-const SearchButton = styled(Button)<{ isLoading?: boolean }>`
+const SearchButton = styled(Button).withConfig({
+  shouldForwardProp: (prop) => prop !== 'isLoading',
+})<{ isLoading?: boolean }>`
   position: relative;
   min-width: 100px;
   
@@ -178,7 +182,9 @@ const TypeFilters = styled.div`
   margin-top: 24px;
 `;
 
-const TypeButton = styled(Button)<{ active: boolean }>`
+const TypeButton = styled(Button).withConfig({
+  shouldForwardProp: (prop) => prop !== 'active',
+})<{ active: boolean }>`
   background: ${props => props.active ? 'linear-gradient(45deg, #3b82f6, #8b5cf6)' : 'transparent'};
   border: 2px solid ${props => props.active ? '#3b82f6' : '#374151'};
   color: ${props => props.active ? 'white' : '#94a3b8'};
@@ -335,9 +341,8 @@ export const CatalogPage = () => {
         if (type !== 'all') filters.type = type;
         response = await movieService.searchMovies(searchQuery, page, filters);
         
-        // Показати toast з результатами пошуку
         const searchTime = Date.now() - lastSearchTime;
-        if (searchTime > 100) { // Уникаємо спаму toast-ів
+        if (searchTime > 100) {
           showToast(
             `Знайдено ${response.movies.length} результатів за "${searchQuery}"`,
             response.movies.length > 0 ? 'success' : 'info'
@@ -384,7 +389,6 @@ export const CatalogPage = () => {
   const handleTypeChange = (type: string) => {
     setSelectedType(type);
     
-    // Автоматичний пошук при зміні типу, якщо є пошуковий запит
     if (localSearchQuery.trim()) {
       setTimeout(() => {
         loadMovies(1, localSearchQuery, year, type);
@@ -395,7 +399,6 @@ export const CatalogPage = () => {
   const handlePageChange = (page: number) => {
     loadMovies(page, localSearchQuery, year, selectedType);
     
-    // Плавна прокрутка до початку результатів
     const resultsSection = document.querySelector('[data-results-section]');
     if (resultsSection) {
       resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { screen, fireEvent, waitFor } from '@testing-library/react'
-import { render } from '../../../test/utils'
-import { ToastProvider, useToast } from '../ToastProvider'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { ToastProvider } from '../ToastProvider'
+import { useToast } from '../../../hooks/useToast'
 
 const TestComponent = () => {
   const { showToast } = useToast()
@@ -36,7 +36,6 @@ describe('ToastProvider', () => {
       expect(screen.getByText('✅')).toBeInTheDocument()
     })
     
-    // Toast should auto-hide after 4 seconds
     await waitFor(() => {
       expect(screen.queryByText('Success message')).not.toBeInTheDocument()
     }, { timeout: 5000 })

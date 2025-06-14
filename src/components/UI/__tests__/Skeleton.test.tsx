@@ -25,10 +25,18 @@ describe('Skeleton Components', () => {
   })
 
   it('renders MovieCardSkeleton structure', () => {
-    render(<MovieCardSkeleton />)
+    const { container } = render(<MovieCardSkeleton />)
     
-    // Should have proper structure similar to MovieCard
-    const skeletonElements = document.querySelectorAll('[class*="Skeleton"]')
-    expect(skeletonElements.length).toBeGreaterThan(0)
+    // Перевіряємо, що компонент відрендерився
+    expect(container.firstChild).toBeInTheDocument()
+    
+    // Перевіряємо структуру - має бути контейнер з дочірніми елементами
+    const mainContainer = container.firstChild as HTMLElement
+    expect(mainContainer).toBeInTheDocument()
+    expect(mainContainer.children.length).toBeGreaterThan(0)
+    
+    // Перевіряємо, що є div елементи (skeleton елементи)
+    const divElements = container.querySelectorAll('div')
+    expect(divElements.length).toBeGreaterThan(3)
   })
 })

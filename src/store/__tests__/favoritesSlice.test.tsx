@@ -3,7 +3,7 @@ import favoritesReducer, {
   addToFavorites, 
   removeFromFavorites, 
   clearFavorites 
-} from '../../slices/favoritesSlice'
+} from '../slices/favoritesSlice'
 
 describe('favoritesSlice', () => {
   const initialState = {

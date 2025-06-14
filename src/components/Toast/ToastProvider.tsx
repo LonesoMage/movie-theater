@@ -1,19 +1,6 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import styled, { keyframes } from 'styled-components';
-
-interface Toast {
-  id: string;
-  message: string;
-  type: 'success' | 'error' | 'info' | 'warning';
-  duration?: number;
-}
-
-interface ToastContextType {
-  showToast: (message: string, type: Toast['type'], duration?: number) => void;
-  hideToast: (id: string) => void;
-}
-
-const ToastContext = createContext<ToastContextType | undefined>(undefined);
+import { ToastContext, type Toast } from './ToastContext';
 
 const slideIn = keyframes`
   from {
@@ -55,7 +42,9 @@ const ToastContainer = styled.div`
   }
 `;
 
-const ToastItem = styled.div<{ type: Toast['type']; isLeaving: boolean }>`
+const ToastItem = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['type', 'isLeaving'].includes(prop),
+})<{ type: Toast['type']; isLeaving: boolean }>`
   padding: 16px 20px;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -196,12 +185,4 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       </ToastContainer>
     </ToastContext.Provider>
   );
-};
-
-export const useToast = () => {
-  const context = useContext(ToastContext);
-  if (!context) {
-    throw new Error('useToast must be used within ToastProvider');
-  }
-  return context;
 };

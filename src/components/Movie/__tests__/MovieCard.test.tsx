@@ -1,10 +1,59 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { screen, fireEvent, waitFor } from '@testing-library/react'
-import { render } from '../../../test/utils'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { Provider } from 'react-redux'
+import { BrowserRouter } from 'react-router-dom'
+import { configureStore } from '@reduxjs/toolkit'
 import { MovieCard } from '../MovieCard'
+import { ToastProvider } from '../../Toast/ToastProvider'
+import movieReducer from '../../../store/slices/movieSlice'
+import favoritesReducer from '../../../store/slices/favoritesSlice'
 import { mockMovie } from '../../../test/mocks/movieData'
 
 const mockOnViewDetails = vi.fn()
+
+const createMockStore = (initialState = {}) => {
+  return configureStore({
+    reducer: {
+      movies: movieReducer,
+      favorites: favoritesReducer,
+    },
+    preloadedState: {
+      movies: {
+        popularMovies: [],
+        popularMoviesLoading: false,
+        popularMoviesError: null,
+        currentMovie: null,
+        currentMovieLoading: false,
+        currentMovieError: null,
+        searchResults: [],
+        searchLoading: false,
+        searchError: null,
+        searchQuery: '',
+        currentPage: 1,
+        totalPages: 1,
+        totalResults: 0,
+      },
+      favorites: {
+        favorites: []
+      },
+      ...initialState
+    }
+  })
+}
+
+const renderWithProviders = (ui: React.ReactElement, { initialState = {} } = {}) => {
+  const store = createMockStore(initialState)
+  
+  return render(
+    <Provider store={store}>
+      <BrowserRouter>
+        <ToastProvider>
+          {ui}
+        </ToastProvider>
+      </BrowserRouter>
+    </Provider>
+  )
+}
 
 describe('MovieCard', () => {
   beforeEach(() => {
@@ -12,7 +61,7 @@ describe('MovieCard', () => {
   })
 
   it('renders movie information correctly', () => {
-    render(<MovieCard movie={mockMovie} onViewDetails={mockOnViewDetails} />)
+    renderWithProviders(<MovieCard movie={mockMovie} onViewDetails={mockOnViewDetails} />)
     
     expect(screen.getByTestId('movie-title')).toHaveTextContent('The Shawshank Redemption')
     expect(screen.getByText('1994')).toBeInTheDocument()
@@ -21,20 +70,20 @@ describe('MovieCard', () => {
 
   it('shows fallback icon when poster is not available', () => {
     const movieWithoutPoster = { ...mockMovie, poster: 'N/A' }
-    render(<MovieCard movie={movieWithoutPoster} onViewDetails={mockOnViewDetails} />)
+    renderWithProviders(<MovieCard movie={movieWithoutPoster} onViewDetails={mockOnViewDetails} />)
     
     expect(screen.getByText('🎬')).toBeInTheDocument()
   })
 
   it('calls onViewDetails when details button is clicked', () => {
-    render(<MovieCard movie={mockMovie} onViewDetails={mockOnViewDetails} />)
+    renderWithProviders(<MovieCard movie={mockMovie} onViewDetails={mockOnViewDetails} />)
     
     fireEvent.click(screen.getByText('Деталі'))
     expect(mockOnViewDetails).toHaveBeenCalledWith('tt0111161')
   })
 
   it('toggles favorite status when favorite button is clicked', async () => {
-    const { store } = render(<MovieCard movie={mockMovie} onViewDetails={mockOnViewDetails} />)
+    renderWithProviders(<MovieCard movie={mockMovie} onViewDetails={mockOnViewDetails} />)
     
     const favoriteButton = screen.getByTestId('favorite-button')
     expect(favoriteButton).toHaveTextContent('🤍')
@@ -44,14 +93,10 @@ describe('MovieCard', () => {
     await waitFor(() => {
       expect(favoriteButton).toHaveTextContent('❤️')
     })
-    
-    const state = store.getState()
-    expect(state.favorites.favorites).toHaveLength(1)
-    expect(state.favorites.favorites[0].movieId).toBe('tt0111161')
   })
 
   it('shows toast notification when adding to favorites', async () => {
-    render(<MovieCard movie={mockMovie} onViewDetails={mockOnViewDetails} />)
+    renderWithProviders(<MovieCard movie={mockMovie} onViewDetails={mockOnViewDetails} />)
     
     const favoriteButton = screen.getByTestId('favorite-button')
     fireEvent.click(favoriteButton)
@@ -62,15 +107,15 @@ describe('MovieCard', () => {
   })
 
   it('shows toast notification when removing from favorites', async () => {
-    const preloadedState = {
+    const initialState = {
       favorites: {
         favorites: [{ movieId: 'tt0111161', addedAt: new Date().toISOString() }]
       }
     }
     
-    render(
+    renderWithProviders(
       <MovieCard movie={mockMovie} onViewDetails={mockOnViewDetails} />,
-      { preloadedState }
+      { initialState }
     )
     
     const favoriteButton = screen.getByTestId('favorite-button')

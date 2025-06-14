@@ -60,7 +60,9 @@ const FallbackIcon = styled.div`
   height: 100%;
 `;
 
-const FavoriteButton = styled.button<{ isFavorite: boolean }>`
+const FavoriteButton = styled.button.withConfig({
+  shouldForwardProp: (prop) => prop !== 'isFavorite',
+})<{ isFavorite: boolean }>`
   position: absolute;
   top: 12px;
   right: 12px;
