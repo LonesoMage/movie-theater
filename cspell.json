@@ -109,7 +109,8 @@
     "рідерів",
     "відрендерився",
     "Goyer",
-    "Metacritic"
+    "Metacritic",
+    "setDelay"
   ],
   "ignorePaths": [
     "node_modules/**",

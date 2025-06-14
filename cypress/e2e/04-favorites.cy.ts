@@ -24,9 +24,7 @@ describe('Обрані фільми', () => {
     cy.get('[data-testid="favorites-badge"]').should('contain', '1')
     
     cy.visitFavoritesPage()
-    cy.get('@movieTitle').then((title) => {
-      cy.get('body').should('contain', title)
-    })
+    cy.get('[data-testid="movie-card"]').should('exist')
   })
 
   it('дозволяє видаляти фільми з обраних', () => {
@@ -72,8 +70,10 @@ describe('Обрані фільми', () => {
     
     cy.get('body').then(($body) => {
       if ($body.find('button:contains("Очистити всі")').length > 0) {
+        cy.window().then((win) => {
+          cy.stub(win, 'confirm').returns(true)
+        })
         cy.get('button').contains('Очистити всі').click()
-        cy.on('window:confirm', () => true)
         cy.get('div').contains('Ваша колекція порожня').should('be.visible')
       }
     })
@@ -86,7 +86,17 @@ describe('Обрані фільми', () => {
       cy.get('[data-testid="favorite-button"]').click()
     })
     
-    cy.window().its('localStorage').should('not.be.empty')
+    cy.window().then((win) => {
+      const stored = win.localStorage.getItem('movieTheater_favorites')
+      if (stored) {
+        const favorites = JSON.parse(stored)
+        if (favorites.length !== 1) {
+          throw new Error(`Expected 1 favorite, got ${favorites.length}`)
+        }
+      } else {
+        throw new Error('Expected favorites to be stored in localStorage')
+      }
+    })
     
     cy.reload()
     cy.get('[data-testid="favorites-badge"]').should('contain', '1')

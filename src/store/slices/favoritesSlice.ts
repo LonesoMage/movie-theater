@@ -5,8 +5,25 @@ interface FavoritesState {
   favorites: FavoriteMovie[];
 }
 
+const loadFavoritesFromStorage = (): FavoriteMovie[] => {
+  try {
+    const stored = localStorage.getItem('movieTheater_favorites');
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+const saveFavoritesToStorage = (favorites: FavoriteMovie[]) => {
+  try {
+    localStorage.setItem('movieTheater_favorites', JSON.stringify(favorites));
+  } catch {
+    // Ignore storage errors
+  }
+};
+
 const initialState: FavoritesState = {
-  favorites: [],
+  favorites: loadFavoritesFromStorage(),
 };
 
 const favoritesSlice = createSlice({
@@ -15,20 +32,24 @@ const favoritesSlice = createSlice({
   reducers: {
     addToFavorites: (state, action: PayloadAction<string>) => {
       const movieId = action.payload;
-      const exists = state.favorites.find(fav => fav.movieId === movieId);
+      const exists = state.favorites.find((fav) => fav.movieId === movieId);
       
       if (!exists) {
-        state.favorites.push({
+        const newFavorite = {
           movieId,
           addedAt: new Date().toISOString(),
-        });
+        };
+        state.favorites.push(newFavorite);
+        saveFavoritesToStorage(state.favorites);
       }
     },
     removeFromFavorites: (state, action: PayloadAction<string>) => {
-      state.favorites = state.favorites.filter(fav => fav.movieId !== action.payload);
+      state.favorites = state.favorites.filter((fav) => fav.movieId !== action.payload);
+      saveFavoritesToStorage(state.favorites);
     },
     clearFavorites: (state) => {
       state.favorites = [];
+      saveFavoritesToStorage(state.favorites);
     },
   },
 });

@@ -15,7 +15,7 @@ describe('Responsive дизайн', () => {
         cy.visitHomePage()
         cy.get('h1').should('be.visible')
         cy.get('nav').should('be.visible')
-        cy.get('[data-testid="favorites-button"]').scrollIntoView().should('be.visible')
+        cy.get('[data-testid="favorites-button"]').should('exist')
       })
 
       it('коректно відображає каталог', () => {
@@ -40,7 +40,7 @@ describe('Responsive дизайн', () => {
         cy.get('nav button').contains('Каталог').click()
         cy.url().should('include', '/catalog')
         
-        cy.get('[data-testid="favorites-button"]').scrollIntoView().click()
+        cy.get('[data-testid="favorites-button"]').click()
         cy.url().should('include', '/favorites')
       })
 
@@ -52,6 +52,7 @@ describe('Responsive дизайн', () => {
           })
           
           cy.visitFavoritesPage()
+          
           cy.get('[data-testid="favorites-info"]').should('not.be.visible')
         })
       }

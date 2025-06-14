@@ -2,7 +2,9 @@ import { useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { Button } from '../../components/UI/Button';
+import { MovieDetailsSkeleton } from '../../components/UI/MovieDetailsSkeleton';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
+import { useToast } from '../../hooks/useToast';
 import { setCurrentMovieLoading, setCurrentMovieSuccess, setCurrentMovieError, clearCurrentMovie } from '../../store/slices/movieSlice';
 import { addToFavorites, removeFromFavorites } from '../../store/slices/favoritesSlice';
 import { movieService } from '../../services/movieService';
@@ -32,13 +34,14 @@ const BackButton = styled(Button)`
   }
 `;
 
-const LoadingSpinner = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  font-size: 24px;
+const LoadingContainer = styled.div`
+  text-align: center;
+  padding: 48px;
+  font-size: 18px;
   color: #64748b;
+  background: #1e293b;
+  border-radius: 16px;
+  margin: 40px 20px;
 `;
 
 const ErrorMessage = styled.div`
@@ -342,11 +345,12 @@ export const MoviePage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const { showToast } = useToast();
   
   const { currentMovie, currentMovieLoading, currentMovieError } = useAppSelector(state => state.movies);
   const favorites = useAppSelector(state => state.favorites.favorites);
 
-  const isFavorite = currentMovie ? favorites.some(fav => fav.movieId === currentMovie.id) : false;
+  const isFavorite = currentMovie ? favorites.some((fav) => fav.movieId === currentMovie.id) : false;
 
   const loadMovie = useCallback(async (movieId: string) => {
     try {
@@ -373,8 +377,10 @@ export const MoviePage = () => {
     
     if (isFavorite) {
       dispatch(removeFromFavorites(currentMovie.id));
+      showToast(`"${currentMovie.title}" видалено з обраних`, 'info');
     } else {
       dispatch(addToFavorites(currentMovie.id));
+      showToast(`"${currentMovie.title}" додано до обраних`, 'success');
     }
   };
 
@@ -394,7 +400,11 @@ export const MoviePage = () => {
   if (currentMovieLoading) {
     return (
       <Container>
-        <LoadingSpinner>Завантаження деталей фільму...</LoadingSpinner>
+        <BackButton onClick={handleBack} variant="outline">
+          ← Назад
+        </BackButton>
+        <LoadingContainer>Завантаження деталей фільму...</LoadingContainer>
+        <MovieDetailsSkeleton />
       </Container>
     );
   }
@@ -412,11 +422,11 @@ export const MoviePage = () => {
   }
 
   const actors = currentMovie.actors && currentMovie.actors !== 'N/A' 
-    ? currentMovie.actors.split(', ').filter(actor => actor.trim())
+    ? currentMovie.actors.split(', ').filter((actor) => actor.trim())
     : [];
 
   const genres = currentMovie.genre && currentMovie.genre !== 'N/A'
-    ? currentMovie.genre.split(', ').filter(genre => genre.trim())
+    ? currentMovie.genre.split(', ').filter((genre) => genre.trim())
     : [];
 
   return (

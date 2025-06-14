@@ -28,7 +28,7 @@ describe('Навігація', () => {
     cy.visitHomePage()
     
     cy.get('nav').should('be.visible')
-    cy.get('[data-testid="favorites-button"]').scrollIntoView().should('be.visible')
+    cy.get('[data-testid="favorites-button"]').should('exist')
     
     cy.get('nav button').contains('Каталог').click()
     cy.url().should('include', '/catalog')

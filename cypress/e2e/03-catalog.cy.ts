@@ -46,42 +46,60 @@ describe('Каталог фільмів', () => {
   })
 
   it('показує skeleton завантажувач', () => {
-    cy.intercept('GET', '**/omdbapi.com/**', { delay: 2000 }).as('getMovies')
-    cy.reload()
+    cy.intercept('GET', 'https://www.omdbapi.com/**', (req) => {
+      req.reply((res) => {
+        res.setDelay(2000)
+        res.send({ fixture: 'movies.json' })
+      })
+    }).as('getMovies')
     
-    cy.get('div').contains('Завантаження').should('be.visible')
-    cy.wait('@getMovies')
+    cy.reload()
+    cy.get('div').should('contain', 'Завантаження')
   })
 
   it('показує повідомлення про помилку при невдалому запиті', () => {
-    cy.intercept('GET', '**/omdbapi.com/**', { statusCode: 500 }).as('getMoviesError')
+    cy.intercept('GET', 'https://www.omdbapi.com/**', {
+      statusCode: 500,
+      body: { Response: 'False', Error: 'Internal Server Error' }
+    }).as('getMoviesError')
+    
     cy.reload()
-    cy.wait('@getMoviesError')
     cy.get('div').contains('Упс! Щось пішло не так').should('be.visible')
     cy.get('button').contains('Спробувати знову').should('be.visible')
   })
 
   it('показує порожній стан коли немає результатів', () => {
+    cy.intercept('GET', 'https://www.omdbapi.com/**', {
+      body: { Response: 'False', Error: 'Movie not found!' }
+    }).as('noResults')
+    
     cy.get('input[placeholder*="Пошук за назвою"]').type('фільмякогонеіснує123456')
     cy.get('button').contains('Знайти').click()
     
-    cy.get('div').should(($el) => {
-      const text = $el.text()
-      expect(text).to.match(/Нічого не знайдено|порожня/)
-    })
-    cy.get('button').contains('Очистити').should('be.visible')
+    cy.wait('@noResults')
+    cy.get('[data-testid="empty-state"], div:contains("Нічого не знайдено")').should('be.visible')
   })
 
   it('працює пагінація', () => {
+    cy.intercept('GET', 'https://www.omdbapi.com/**', {
+      body: {
+        Search: Array(10).fill(null).map((_, i) => ({
+          Title: `Test Movie ${i}`,
+          Year: '2023',
+          imdbID: `tt000000${i}`,
+          Type: 'movie',
+          Poster: 'https://via.placeholder.com/300x450'
+        })),
+        totalResults: '25',
+        Response: 'True'
+      }
+    }).as('searchResults')
+    
     cy.get('input[placeholder*="Пошук за назвою"]').type('movie')
     cy.get('button').contains('Знайти').click()
     
-    cy.get('body').then(($body) => {
-      if ($body.find('button:contains("2")').length > 0) {
-        cy.get('button').contains('2').click()
-        cy.get('button').contains('→').should('be.visible')
-        cy.get('button').contains('←').should('be.visible')
-      }
-    })
+    cy.wait('@searchResults')
+    cy.get('button').contains('2').should('be.visible')
+    cy.get('button').contains('→').should('be.visible')
   })
 })

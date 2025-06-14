@@ -201,7 +201,7 @@ export const FavoritesPage = () => {
     setError(null);
     
     try {
-      const moviePromises = favorites.map(favorite => 
+      const moviePromises = favorites.map((favorite) => 
         movieService.getMovieById(favorite.movieId)
       );
       
@@ -364,7 +364,7 @@ export const FavoritesPage = () => {
             </EmptyState>
           ) : (
             <MoviesGrid>
-              {favoriteMovies.map(movie => (
+              {favoriteMovies.map((movie) => (
                 <MovieCard
                   key={movie.id}
                   movie={movie}

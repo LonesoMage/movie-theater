@@ -17,8 +17,9 @@ describe('Accessibility', () => {
         const hasAriaLabel = element.getAttribute('aria-label')
         const hasTitle = element.getAttribute('title')
         
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        expect(hasText || hasAriaLabel || hasTitle).to.be.true
+        if (!(hasText || hasAriaLabel || hasTitle)) {
+          throw new Error('Button must have accessible text, aria-label, or title')
+        }
       })
     })
   })
@@ -32,8 +33,9 @@ describe('Accessibility', () => {
         const hasAlt = element.getAttribute('alt') !== null
         const hasAriaLabel = element.getAttribute('aria-label') !== null
         
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        expect(hasAlt || hasAriaLabel).to.be.true
+        if (!(hasAlt || hasAriaLabel)) {
+          throw new Error('Image must have alt text or aria-label')
+        }
       })
     })
   })
@@ -48,8 +50,9 @@ describe('Accessibility', () => {
         const hasAriaLabel = element.getAttribute('aria-label') !== null
         const hasAriaLabelledBy = element.getAttribute('aria-labelledby') !== null
         
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        expect(hasPlaceholder || hasAriaLabel || hasAriaLabelledBy).to.be.true
+        if (!(hasPlaceholder || hasAriaLabel || hasAriaLabelledBy)) {
+          throw new Error('Input must have placeholder, aria-label, or aria-labelledby')
+        }
       })
     })
   })
@@ -60,7 +63,7 @@ describe('Accessibility', () => {
     cy.get('button').first().focus()
     cy.focused().should('be.visible')
     
-    cy.focused().type('{tab}')
+    cy.focused().tab()
     cy.focused().should('be.visible')
   })
 

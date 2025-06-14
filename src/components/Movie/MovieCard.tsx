@@ -177,7 +177,7 @@ export const MovieCard = ({ movie, onViewDetails }: MovieCardProps) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
 
-  const isFavorite = favorites.some(fav => fav.movieId === movie.id);
+  const isFavorite = favorites.some((fav) => fav.movieId === movie.id);
 
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();

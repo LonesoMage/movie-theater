@@ -12,6 +12,7 @@ declare global {
       removeFromFavorites(movieTitle: string): Chainable<void>
       clearAllFavorites(): Chainable<void>
       checkToastMessage(message: string): Chainable<void>
+      tab(): Chainable<JQuery<HTMLElement>>
     }
   }
 }
@@ -59,6 +60,11 @@ Cypress.Commands.add('clearAllFavorites', () => {
 
 Cypress.Commands.add('checkToastMessage', (message: string) => {
   cy.contains(message).should('be.visible')
+})
+
+Cypress.Commands.add('tab', { prevSubject: 'element' }, (subject) => {
+  cy.wrap(subject).trigger('keydown', { key: 'Tab' })
+  return cy.focused()
 })
 
 export {}

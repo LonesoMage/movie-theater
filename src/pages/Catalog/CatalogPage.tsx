@@ -248,6 +248,16 @@ const MovieGrid = styled.div`
   margin-bottom: 40px;
 `;
 
+const LoadingContainer = styled.div`
+  text-align: center;
+  padding: 48px;
+  font-size: 18px;
+  color: #64748b;
+  background: #1e293b;
+  border-radius: 16px;
+  margin: 24px 0;
+`;
+
 const ErrorMessage = styled.div`
   text-align: center;
   padding: 48px;
@@ -556,7 +566,10 @@ export const CatalogPage = () => {
           </ResultsHeader>
 
           {popularMoviesLoading ? (
-            <SkeletonGrid count={12} />
+            <>
+              <LoadingContainer>Завантаження фільмів...</LoadingContainer>
+              <SkeletonGrid count={12} />
+            </>
           ) : popularMoviesError ? (
             <ErrorMessage>
               <div style={{ marginBottom: '16px' }}>
@@ -569,7 +582,7 @@ export const CatalogPage = () => {
               </RetryButton>
             </ErrorMessage>
           ) : popularMovies.length === 0 ? (
-            <EmptyState>
+            <EmptyState data-testid="empty-state">
               <EmptyIcon>🔍</EmptyIcon>
               <EmptyTitle>
                 {isSearching ? 'Нічого не знайдено' : 'Фільми недоступні'}
@@ -586,7 +599,7 @@ export const CatalogPage = () => {
             </EmptyState>
           ) : (
             <MovieGrid>
-              {popularMovies.map(movie => (
+              {popularMovies.map((movie) => (
                 <MovieCard
                   key={movie.id}
                   movie={movie}

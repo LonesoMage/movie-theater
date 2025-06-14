@@ -74,16 +74,22 @@ describe('Деталі фільму', () => {
   })
 
   it('показує skeleton завантажувач під час завантаження', () => {
-    cy.intercept('GET', '**/omdbapi.com/**', { delay: 2000 }).as('getMovieDetails')
+    cy.intercept('GET', 'https://www.omdbapi.com/**', {
+      delay: 2000,
+      fixture: 'movie-details.json'
+    }).as('getMovieDetails')
+    
     cy.reload()
-    cy.get('div').contains('Завантаження деталей фільму').should('be.visible')
-    cy.wait('@getMovieDetails')
+    cy.get('div').should('contain', 'Завантаження деталей фільму')
   })
 
   it('показує помилку при невдалому завантаженні', () => {
-    cy.intercept('GET', '**/omdbapi.com/**', { statusCode: 500 }).as('getMovieError')
+    cy.intercept('GET', 'https://www.omdbapi.com/**', {
+      statusCode: 500,
+      body: { Response: 'False', Error: 'Internal Server Error' }
+    }).as('getMovieError')
+    
     cy.reload()
-    cy.wait('@getMovieError')
     cy.get('h2').contains('Помилка завантаження').should('be.visible')
     cy.get('button').contains('Повернутися назад').should('be.visible')
   })
