@@ -176,12 +176,6 @@ export const Header = () => {
           >
             Каталог
           </NavLink>
-          <NavLink 
-            active={isActive('/search')} 
-            onClick={() => handleNavigation('/search')}
-          >
-            Пошук
-          </NavLink>
         </Nav>
         
         <RightSection>

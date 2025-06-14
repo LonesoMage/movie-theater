@@ -4,6 +4,7 @@ import type { Movie } from '../../types/movie';
 import { Button } from '../UI/Button';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { addToFavorites, removeFromFavorites } from '../../store/slices/favoritesSlice';
+import { useToast } from '../../hooks/useToast';
 
 interface MovieCardProps {
   movie: Movie;
@@ -81,6 +82,10 @@ const FavoriteButton = styled.button<{ isFavorite: boolean }>`
     background: rgba(15, 23, 42, 0.9);
     transform: scale(1.1);
     color: ${props => props.isFavorite ? '#dc2626' : '#f87171'};
+  }
+  
+  &:active {
+    transform: scale(0.95);
   }
 `;
 
@@ -166,6 +171,7 @@ const DetailsButton = styled(Button)`
 export const MovieCard = ({ movie, onViewDetails }: MovieCardProps) => {
   const dispatch = useAppDispatch();
   const favorites = useAppSelector(state => state.favorites.favorites);
+  const { showToast } = useToast();
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
 
@@ -173,10 +179,13 @@ export const MovieCard = ({ movie, onViewDetails }: MovieCardProps) => {
 
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
+    
     if (isFavorite) {
       dispatch(removeFromFavorites(movie.id));
+      showToast(`"${movie.title}" видалено з обраних`, 'info');
     } else {
       dispatch(addToFavorites(movie.id));
+      showToast(`"${movie.title}" додано до обраних`, 'success');
     }
   };
 
@@ -232,6 +241,7 @@ export const MovieCard = ({ movie, onViewDetails }: MovieCardProps) => {
           isFavorite={isFavorite}
           onClick={handleToggleFavorite}
           data-testid="favorite-button"
+          title={isFavorite ? 'Видалити з обраних' : 'Додати до обраних'}
         >
           {isFavorite ? '❤️' : '🤍'}
         </FavoriteButton>
